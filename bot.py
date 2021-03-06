@@ -1,7 +1,7 @@
 import discord, configparser, os, time, random, asyncio
 from commands.music import play_music, leave_music, pause_music, resume_music, skip_music, show_queue
 from commands.social import instapic
-
+badges = {"programozó":"💻", "911":"➕", "moderátor":"🔧", "admin":"🔰", "fejlesztő":"📛", "tulajdonos":"👑"}
 song_queue = []
 
 intents = discord.Intents.default()
@@ -22,6 +22,12 @@ async def on_ready():
     client.loop.create_task(check_date())
 @client.event
 async def on_message(message):
+    temp_badges = []
+    for k, v in badges.items():
+        for x in message.author.roles:
+            if k == x.name: temp_badges.append(v)     
+    b = temp_badges[-1]
+    if b != "": await message.author.edit(nick = f"[{b}] {message.author.name}")
     if message.author == client.user or message.content.startswith(config['bot']['prefix']): return
     args = message.content[len(config['bot']['prefix']):].split()
     if args[0] == "play": await play_music.run(discord, client, guild, config, message, args, song_queue, os)
